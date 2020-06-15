@@ -6,6 +6,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484 // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/jeremywohl/flatten v0.0.0-20180616191615-6ba45bff2452
+	github.com/manifoldco/promptui v0.7.0
 	github.com/mattn/go-runewidth v0.0.3 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
