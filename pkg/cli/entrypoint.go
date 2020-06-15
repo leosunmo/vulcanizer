@@ -13,6 +13,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type Config struct {
@@ -47,6 +48,20 @@ func getConfiguration() Config {
 
 	}
 
+	var password string
+	if v.GetBool("prompt-password") {
+		fmt.Print("Password: ")
+		bytesPassword, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			fmt.Printf("Error getting password from prompt: %s \n", err)
+			os.Exit(1)
+		}
+		password = string(bytesPassword)
+
+	} else {
+		password = v.GetString("password")
+	}
+
 	config := Config{
 		Host:     v.GetString("host"),
 		Port:     v.GetInt("port"),
@@ -54,7 +69,7 @@ func getConfiguration() Config {
 		Path:     v.GetString("path"),
 
 		User:     v.GetString("user"),
-		Password: v.GetString("password"),
+		Password: password,
 
 		Cert:   v.GetString("cert"),
 		Key:    v.GetString("key"),
@@ -145,6 +160,7 @@ func InitializeCLI(args []string, stdin io.Reader, stdout io.Writer, stderr io.W
 	rootCmd.PersistentFlags().IntP("port", "p", 9200, "Port to connect to")
 	rootCmd.PersistentFlags().StringP("user", "", "", "User to use during authentication")
 	rootCmd.PersistentFlags().StringP("password", "", "", "Password to use during authentication")
+	rootCmd.PersistentFlags().BoolP("prompt-password", "i", false, "Interactive prompt for authentication password")
 	rootCmd.PersistentFlags().StringP("cluster", "c", "", "Cluster to connect to defined in config file")
 	rootCmd.PersistentFlags().StringP("path", "", "", "Path to prepend to queries, in case Elasticsearch is behind a reverse proxy")
 	rootCmd.PersistentFlags().StringP("protocol", "", "http", "Protocol to use when querying the cluster. Either 'http' or 'https'. Defaults to 'http'")
@@ -192,6 +208,11 @@ func InitializeCLI(args []string, stdin io.Reader, stdout io.Writer, stderr io.W
 	err = viper.BindPFlag("password", rootCmd.PersistentFlags().Lookup("password"))
 	if err != nil {
 		fmt.Printf("Error binding password flag: %s \n", err)
+		os.Exit(1)
+	}
+	err = viper.BindPFlag("prompt-password", rootCmd.PersistentFlags().Lookup("prompt-password"))
+	if err != nil {
+		fmt.Printf("Error binding prompt-password flag: %s \n", err)
 		os.Exit(1)
 	}
 
