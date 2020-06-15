@@ -18,5 +18,6 @@ require (
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/tidwall/gjson v1.1.3
 	github.com/tidwall/match v1.0.0 // indirect
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	gotest.tools v2.2.0+incompatible
 )
