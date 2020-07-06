@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/jeremywohl/flatten"
+	"github.com/nsf/jsondiff"
 	"github.com/parnurzeal/gorequest"
 	"github.com/tidwall/gjson"
 )
@@ -1122,6 +1123,57 @@ func (c *Client) GetPrettyIndexMappings(index string) (string, error) {
 	}
 
 	return prettyPrinted.String(), nil
+}
+
+func (c *Client) GetMappingDiff(indexA, indexB string) (string, error) {
+	if indexA == indexB {
+		return "", fmt.Errorf("Can't provide the same index twice")
+	}
+	bodyA, err := handleErrWithBytes(c.buildGetRequest(fmt.Sprintf("%s/_mappings", indexA)))
+	if err != nil {
+		return "", err
+	}
+	bodyB, err := handleErrWithBytes(c.buildGetRequest(fmt.Sprintf("%s/_mappings", indexB)))
+	if err != nil {
+		return "", err
+	}
+
+	var topLevelA map[string]interface{}
+	err = json.Unmarshal(bodyA, &topLevelA)
+	if err != nil {
+		return "", err
+	}
+	mappingsA := topLevelA[indexA]
+
+	var topLevelB map[string]interface{}
+	err = json.Unmarshal(bodyB, &topLevelB)
+	if err != nil {
+		return "", err
+	}
+
+	mappingsB := topLevelB[indexB]
+
+	jsonA, err := json.Marshal(mappingsA)
+	if err != nil {
+		return "", err
+	}
+
+	jsonB, err := json.Marshal(mappingsB)
+	if err != nil {
+		return "", err
+	}
+
+	diffOpts := jsondiff.Options{
+		Added:            jsondiff.Tag{Begin: "\033[0;32m+ ", End: "\033[0m"},
+		Removed:          jsondiff.Tag{Begin: "\033[0;31m- ", End: "\033[0m"},
+		Changed:          jsondiff.Tag{Begin: "\033[0;33m", End: "\033[0m"},
+		ChangedSeparator: " => ",
+		Indent:           "  ",
+	}
+
+	_, s := jsondiff.Compare(jsonA, jsonB, &diffOpts)
+
+	return s, nil
 }
 
 //Get shard data for all or a subset of nodes
