@@ -1,9 +1,10 @@
-module github.com/github/vulcanizer
+module github.com/leosunmo/vulcanizer
 
-go 1.13
+go 1.15
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484 // indirect
+	github.com/github/vulcanizer v0.5.1
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/jeremywohl/flatten v0.0.0-20180616191615-6ba45bff2452
 	github.com/mattn/go-runewidth v0.0.3 // indirect
@@ -20,3 +21,5 @@ require (
 	github.com/tidwall/match v1.0.0 // indirect
 	gotest.tools v2.2.0+incompatible
 )
+
+replace github.com/github/vulcanizer v0.5.1 => github.com/leosunmo/vulcanizer v0.5.3
